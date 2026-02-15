@@ -112,81 +112,35 @@ const RightSide = () => {
 
       {/* List */}
       <div className="mt-2">
-        {formSubmit.map((items, index) => (
-          <div
-            key={index}
-            className="w-full border border-green-600 h-20 mb-3 flex items-center justify-between rounded px-5"
-          >
-            {editIndex === index ? (
-              <>
-                <input
-                  value={formData.item}
-                  onChange={(e) =>
-                    setFormData({ ...formData, item: e.target.value })
-                  }
-                  className="border px-2"
-                />
+  {formSubmit.map((items, index) => (
+    <div
+      key={index}
+      className="w-full border border-green-600 h-20 mb-3 flex items-center justify-between rounded px-5"
+    >
+      <h1>{items.item}</h1>
+      <h1>{items.amount}</h1>
+      <h1>{items.category}</h1>
 
-                <input
-                  type="number"
-                  value={formData.amount}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      amount: Number(e.target.value),
-                    })
-                  }
-                  className="border px-2 w-20"
-                />
+      <div className="flex gap-3 items-center">
+        <button
+          onClick={() => {
+            setEditIndex(index);
+            setFormData(items);
+          }}
+          className="text-blue-500"
+        >
+          Edit
+        </button>
 
-                <select
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      category: e.target.value,
-                    })
-                  }
-                  className="border px-2"
-                >
-                  <option value="laptop">Laptop</option>
-                  <option value="mouse">Mouse</option>
-                </select>
-
-                <button
-                  onClick={submitHandler}
-                  className="bg-blue-500 text-white px-3 py-1 rounded"
-                >
-                  Save
-                </button>
-              </>
-            ) : (
-              <>
-                <h1>{items.item}</h1>
-                <h1>{items.amount}</h1>
-                <h1>{items.category}</h1>
-
-                <div className="flex gap-3 items-center">
-                  <button
-                    onClick={() => {
-                      setEditIndex(index);
-                      setFormData(items);
-                    }}
-                    className="text-blue-500"
-                  >
-                    Edit
-                  </button>
-
-                  <RiDeleteBinFill
-                    className="cursor-pointer text-red-500"
-                    onClick={() => deleteItem(index)}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-        ))}
+        <RiDeleteBinFill
+          className="cursor-pointer text-red-500"
+          onClick={() => deleteItem(index)}
+        />
       </div>
+    </div>
+  ))}
+</div>
+
     </div>
   );
 };
