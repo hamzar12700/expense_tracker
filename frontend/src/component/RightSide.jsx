@@ -1,146 +1,124 @@
-import React, { useState } from "react";
-import { RiDeleteBinFill } from "react-icons/ri";
-import { toast } from "react-toastify";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import DataForm from "./DataForm";
+import '../App.css'
+
+
+const API = "http://localhost:5000/api/items";
 
 const RightSide = () => {
-  const [formData, setFormData] = useState({
+  const [items, setItems] = useState([]);
+  const [editId, setEditId] = useState(null);
+
+  const initialFormState = {
     item: "",
-    amount: 0,
+    amount: "",
     category: "",
-  });
-
-  const [formSubmit, setFormSubmit] = useState([]);
-  const [editIndex, setEditIndex] = useState(null); // ✅ IMPORTANT
-
-  // ✅ Delete Function
-  const deleteItem = (indexToDelete) => {
-    setFormSubmit((prev) =>
-      prev.filter((_, index) => index !== indexToDelete)
-    );
-    toast.info("Item deleted");
   };
 
-  // ✅ Add + Update Function
-  const submitHandler = () => {
-    const { item, amount, category } = formData;
+  const [formData, setFormData] = useState(initialFormState);
 
-    if (!item || amount <= 0 || !category) {
-      toast.error("Please fill all fields properly!");
-      return;
+  const fetchItems = async () => {
+    try {
+      const res = await axios.get(API);
+      setItems(res.data);
+    } catch (error) {
+      console.error("Error fetching items:", error);
     }
+  };
 
-    if (editIndex !== null) {
-      // Update Mode
-      const updatedList = formSubmit.map((data, index) =>
-        index === editIndex ? formData : data
-      );
+  useEffect(() => {
+    fetchItems();
+  }, []);
 
-      setFormSubmit(updatedList);
-      setEditIndex(null);
-      toast.success("Item updated!");
-    } else {
-      // Add Mode
-      setFormSubmit((prev) => [...prev, { ...formData }]);
-      toast.success("Item added!");
+  const submitHandler = async (e) => {
+    e.preventDefault();
+
+    try {
+      if (editId) {
+        await axios.put(`${API}/${editId}`, formData);
+        setEditId(null);
+      } else {
+        await axios.post(API, formData);
+      }
+
+      setFormData(initialFormState);
+      fetchItems();
+    } catch (error) {
+      console.error("Error submitting data:", error);
     }
+  };
 
-    setFormData({
-      item: "",
-      amount: 0,
-      category: "",
-    });
+  const deleteItem = async (id) => {
+    try {
+      await axios.delete(`${API}/${id}`);
+      fetchItems();
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    }
   };
 
   return (
-    <div className="my-10 mx-10">
-      <h1 className="text-2xl my-10">Your Todo List:</h1>
+    <div className="container bg-red-900 w-screen">
+      <h2 className="title">Inventory Manager</h2>
 
-      {/* Top Add Form */}
-      <div className="flex gap-2">
+      <form className="form-box" onSubmit={submitHandler}>
         <input
           type="text"
-          className="w-full px-3 py-2 border rounded-md focus:border-green-600 focus:outline-none"
-          placeholder="Enter item name"
+          placeholder="Item Name"
           value={formData.item}
           onChange={(e) =>
             setFormData({ ...formData, item: e.target.value })
           }
+          required
         />
 
-        <select
+        <input
+          type="number"
+          placeholder="Amount"
+          value={formData.amount}
+          onChange={(e) =>
+            setFormData({ ...formData, amount: e.target.value })
+          }
+          required
+        />
+
+        <input
+          type="text"
+          placeholder="Category"
           value={formData.category}
           onChange={(e) =>
             setFormData({ ...formData, category: e.target.value })
           }
-          className="w-full px-3 py-2 border rounded-md focus:border-green-600 focus:outline-none"
-        >
-          <option value="" disabled>
-            Select category
-          </option>
-          <option value="laptop">Laptop</option>
-          <option value="mouse">Mouse</option>
-        </select>
-
-        <input
-          type="number"
-          value={formData.amount}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              amount: Number(e.target.value),
-            })
-          }
-          placeholder="Amount"
-          className="w-full px-3 py-2 border rounded-md focus:border-green-600 focus:outline-none"
+          required
         />
 
-        <button
-          className="border px-5 rounded border-green-600 bg-green-600 text-white py-2"
-          onClick={submitHandler}
-        >
-          {editIndex !== null ? "Update" : "Add"}
-        </button>
-      </div>
+        <div className="form-buttons">
+          <button type="submit" className="add-btn">
+            {editId ? "Update Item" : "Add Item"}
+          </button>
 
-      {/* Header */}
-      <div className="flex justify-between py-4 font-bold px-2 text-green-600">
-        <h1>Item</h1>
-        <h1>Amount</h1>
-        <h1>Category</h1>
-        <h1>Actions</h1>
-      </div>
+          {editId && (
+            <button
+              type="button"
+              className="cancel-btn"
+              onClick={() => {
+                setEditId(null);
+                setFormData(initialFormState);
+              }}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </form>
 
-      {/* List */}
-      <div className="mt-2">
-  {formSubmit.map((items, index) => (
-    <div
-      key={index}
-      className="w-full border border-green-600 h-20 mb-3 flex items-center justify-between rounded px-5"
-    >
-      <h1>{items.item}</h1>
-      <h1>{items.amount}</h1>
-      <h1>{items.category}</h1>
-
-      <div className="flex gap-3 items-center">
-        <button
-          onClick={() => {
-            setEditIndex(index);
-            setFormData(items);
-          }}
-          className="text-blue-500"
-        >
-          Edit
-        </button>
-
-        <RiDeleteBinFill
-          className="cursor-pointer text-red-500"
-          onClick={() => deleteItem(index)}
-        />
-      </div>
-    </div>
-  ))}
-</div>
-
+      <DataForm
+        items={items}
+        deleteItem={deleteItem}
+        setEditId={setEditId}
+        setFormData={setFormData}
+      />
     </div>
   );
 };
