@@ -4,7 +4,7 @@ import "../App.css"
 
 const DataForm = ({ items, deleteItem, setEditId, setFormData }) => {
   if (!items || items.length === 0) {
-    return <p className="empty">No items found.</p>;
+    return <div className="border border-amber-300 border-double ">No items found.</div>;
   }
 
   return (

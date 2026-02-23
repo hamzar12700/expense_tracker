@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import DataForm from "./DataForm";
-import '../App.css'
-
+import "../App.css";
 
 const API = "http://localhost:5000/api/items";
 
@@ -59,53 +58,75 @@ const RightSide = () => {
   };
 
   return (
-    <div className="container bg-red-900 w-screen">
-      <h2 className="title">Inventory Manager</h2>
+    <div className="w-full bg-white p-4 sm:p-6 rounded-xl shadow-md">
+      <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center">
+        Inventory Manager
+      </h2>
 
-      <form className="form-box" onSubmit={submitHandler}>
+      {/* FORM */}
+      <form
+        onSubmit={submitHandler}
+        className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6"
+      >
+        {/* Item Name */}
         <input
           type="text"
-          placeholder="Item Name"
+          placeholder="Enter Item Name"
           value={formData.item}
           onChange={(e) =>
             setFormData({ ...formData, item: e.target.value })
           }
+          className="border p-3 rounded-lg flex-1 min-w-[180px] focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
           required
         />
 
+        {/* Amount */}
         <input
           type="number"
-          placeholder="Amount"
+          placeholder="Enter Amount"
           value={formData.amount}
           onChange={(e) =>
             setFormData({ ...formData, amount: e.target.value })
           }
+          className="border p-3 rounded-lg flex-1 min-w-[150px] focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
           required
         />
 
-        <input
-          type="text"
-          placeholder="Category"
+        {/* Category Select */}
+        <select
           value={formData.category}
           onChange={(e) =>
             setFormData({ ...formData, category: e.target.value })
           }
+          className="border p-3 rounded-lg flex-1 min-w-[150px] bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
           required
-        />
+        >
+          <option value="" disabled>
+            Select Category
+          </option>
+          <option value="Laptop">Laptop</option>
+          <option value="Mouse">Mouse</option>
+          <option value="Keyboard">Keyboard</option>
+          <option value="Screen">Screen</option>
+        </select>
 
-        <div className="form-buttons">
-          <button type="submit" className="add-btn">
-            {editId ? "Update Item" : "Add Item"}
+        {/* Buttons */}
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base"
+          >
+            {editId ? "Update" : "Add"}
           </button>
 
           {editId && (
             <button
               type="button"
-              className="cancel-btn"
               onClick={() => {
                 setEditId(null);
                 setFormData(initialFormState);
               }}
+              className="bg-gray-400 text-white px-5 py-3 rounded-lg hover:bg-gray-500 transition text-sm sm:text-base"
             >
               Cancel
             </button>
@@ -113,12 +134,15 @@ const RightSide = () => {
         </div>
       </form>
 
-      <DataForm
-        items={items}
-        deleteItem={deleteItem}
-        setEditId={setEditId}
-        setFormData={setFormData}
-      />
+      {/* DATA TABLE */}
+      <div className="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+        <DataForm
+          items={items}
+          deleteItem={deleteItem}
+          setEditId={setEditId}
+          setFormData={setFormData}
+        />
+      </div>
     </div>
   );
 };
